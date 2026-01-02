@@ -1,18 +1,19 @@
 // src/pages/Profile.jsx
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
-
-// Componente para un post dentro del perfil
-const ProfilePost = ({ title, excerpt, likes, comments }) => {
+const ProfilePost = ({ title, content, img, likes, comments }) => {
   return (
     <div className="post-card">
       <div className="post-image">
-        <div className="cloud"></div>
+        {img ? (
+          <img src={img} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : (
+          <div className="cloud"></div>
+        )}
       </div>
       <h3 className="post-title">{title}</h3>
-      <p className="post-excerpt">{excerpt}</p>
+      <p className="post-excerpt">{content}</p>
       <div className="post-stats">
         <span className="post-stat">👍 {likes}</span>
         <span className="post-stat">💬 {comments}</span>
@@ -20,105 +21,261 @@ const ProfilePost = ({ title, excerpt, likes, comments }) => {
     </div>
   );
 };
-const PostLike = ({ title, user, date }) => {
-  return (
-    <div className="post-card">
-      <div className="post-image">
-        <div className="cloud"></div>
-      </div>
-      <h3 className="post-title">{title}</h3>
-      <p className="post-excerpt">Le gustó a {user} el {date}</p>
-      <div className="post-stats">
-        <span className="post-stat">💖 {Math.floor(Math.random() * 5000)}</span>
-      </div>
-    </div>
-  );
-};
-
-const PostResponse = ({ title, user, comment }) => {
-  return (
-    <div className="post-card">
-      <div className="post-image">
-        <div className="cloud"></div>
-      </div>
-      <h3 className="post-title">{title}</h3>
-      <p className="post-excerpt">{user} respondió: "{comment}"</p>
-      <div className="post-stats">
-        <span className="post-stat">💬 {Math.floor(Math.random() * 200)}</span>
-      </div>
-    </div>
-  );
-};
-
-
 
 const Profile = () => {
-  const navigate = useNavigate(); // Hook para navegación
-  const [activeTab, setActiveTab] = useState("Posts"); // <-- aquí dentro
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("Posts");
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
+  
+  const [editForm, setEditForm] = useState({
+    displayName: "",
+    bio: "",
+    location: "",
+    occupation: ""
+  });
 
-  const posts = [
-    { title: "Post 1", excerpt: "Lorem Ipsum is simply dummy text...", likes: 3923, comments: 233 },
-    { title: "Post 2", excerpt: "Lorem Ipsum is simply dummy text...", likes: 2845, comments: 156 },
-    { title: "Post 3", excerpt: "Lorem Ipsum is simply dummy text...", likes: 4521, comments: 389 },
-    { title: "Post 4", excerpt: "Lorem Ipsum is simply dummy text...", likes: 1892, comments: 98 },
-    { title: "Post 5", excerpt: "Lorem Ipsum is simply dummy text...", likes: 5234, comments: 412 },
-    { title: "Post 6", excerpt: "Lorem Ipsum is simply dummy text...", likes: 3156, comments: 201 },
-  ];
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+      setEditForm({
+        displayName: userData.displayName || userData.username,
+        bio: userData.bio || "",
+        location: userData.location || "",
+        occupation: userData.occupation || ""
+      });
+      
+      fetch(`http://localhost:8080/api/posts/user/${userData.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setPosts(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Error cargando posts:", err);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
-  const likesData = [
-    { title: "Post sobre React", user: "Ana", date: "28/12/2025" },
-    { title: "Tutorial de CSS", user: "Carlos", date: "27/12/2025" },
-  ];
+  const handleEditChange = (e) => {
+    setEditForm({
+      ...editForm,
+      [e.target.name]: e.target.value
+    });
+  };
 
-  const responsesData = [
-    { title: "Post sobre React", user: "Lucía", comment: "¡Muy útil, gracias!" },
-    { title: "Tutorial de CSS", user: "Miguel", comment: "No entendí la parte de flexbox 😅" },
-  ];
+  const handleSaveProfile = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/auth/user/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm)
+      });
 
+      if (res.ok) {
+        const updatedUser = await res.json();
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setIsEditing(false);
+      }
+    } catch (err) {
+      console.error("Error actualizando perfil:", err);
+    }
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const res = await fetch(`http://localhost:8080/api/auth/user/${user.id}/avatar`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (res.ok) {
+        const updatedUser = await res.json();
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+    } catch (err) {
+      console.error("Error subiendo avatar:", err);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const formatNumber = (num) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "K";
+    }
+    return num;
+  };
+
+  if (loading) {
+    return <div className="container">Cargando...</div>;
+  }
+
+  if (!user) {
+    return (
+      <div className="container">
+        <button 
+          className="btn btn-secondary" 
+          style={{ marginBottom: "20px" }}
+          onClick={() => navigate(-1)}
+        >
+          ← Volver
+        </button>
+        <p>Debes iniciar sesión para ver tu perfil.</p>
+      </div>
+    );
+  }
 
   return (
-
     <div className="container">
       <button 
         className="btn btn-secondary" 
         style={{ marginBottom: "20px" }}
-        onClick={() => navigate(-1)} // Volver a la página anterior
+        onClick={() => navigate(-1)}
       >
         ← Volver
       </button>
 
       <div className="profile-header">
         <div className="profile-top">
-          <div className="profile-avatar"><img className="profile-avatar-img" src="/images/fotoPerfilEjemplo.jpg" alt="Foto perfil usuario" /></div>
+          <div 
+            className="profile-avatar" 
+            onClick={handleAvatarClick}
+            style={{ cursor: "pointer", position: "relative" }}
+          >
+            <img 
+              className="profile-avatar-img" 
+              src={user.avatar || "/images/fotoPerfilEjemplo.jpg"} 
+              alt="Foto perfil usuario" 
+            />
+            <div className="avatar-overlay">
+              {uploadingAvatar ? "⏳" : "📷"}
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+              accept="image/*"
+              style={{ display: "none" }}
+            />
+          </div>
           <div className="profile-info">
-            <h1 className="profile-name">Juan Pérez</h1>
-            <p className="profile-username">@juanperez</p>
+            {isEditing ? (
+              <input
+                type="text"
+                name="displayName"
+                value={editForm.displayName}
+                onChange={handleEditChange}
+                className="edit-input"
+                placeholder="Nombre"
+              />
+            ) : (
+              <h1 className="profile-name">{user.displayName || user.username}</h1>
+            )}
+            <p className="profile-username">@{user.username}</p>
 
             <div className="profile-stats">
               <div className="stat-item">
-                <div className="stat-number">245</div>
+                <div className="stat-number">{user.postCount || posts.length}</div>
                 <div className="stat-label">Posts</div>
               </div>
               <div className="stat-item">
-                <div className="stat-number">1.2K</div>
+                <div className="stat-number">{formatNumber(user.followers || 0)}</div>
                 <div className="stat-label">Seguidores</div>
               </div>
               <div className="stat-item">
-                <div className="stat-number">892</div>
+                <div className="stat-number">{formatNumber(user.following || 0)}</div>
                 <div className="stat-label">Siguiendo</div>
               </div>
             </div>
 
             <div className="profile-actions">
-              <button className="btn btn-primary">Seguir</button>
-              <button className="btn btn-secondary">Mensaje</button>
-              <button className="btn btn-secondary">Más</button>
+              {isEditing ? (
+                <>
+                  <button className="btn btn-primary" onClick={handleSaveProfile}>
+                    Guardar
+                  </button>
+                  <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>
+                    Cancelar
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
+                    Editar perfil
+                  </button>
+                  <button className="btn btn-secondary">Compartir</button>
+                </>
+              )}
             </div>
           </div>
         </div>
 
         <div className="profile-bio">
-          Apasionado por la tecnología y el diseño. Compartiendo mi viaje creativo y proyectos personales. 📍 Valencia, España | 💼 Diseñador Web
+          {isEditing ? (
+            <div className="edit-bio-section">
+              <textarea
+                name="bio"
+                value={editForm.bio}
+                onChange={handleEditChange}
+                className="edit-textarea"
+                placeholder="Escribe tu biografía..."
+                rows={3}
+              />
+              <div className="edit-row">
+                <input
+                  type="text"
+                  name="location"
+                  value={editForm.location}
+                  onChange={handleEditChange}
+                  className="edit-input"
+                  placeholder="📍 Ubicación"
+                />
+                <input
+                  type="text"
+                  name="occupation"
+                  value={editForm.occupation}
+                  onChange={handleEditChange}
+                  className="edit-input"
+                  placeholder="💼 Ocupación"
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              {user.bio || "Sin biografía aún."}
+              {(user.location || user.occupation) && (
+                <div style={{ marginTop: "8px" }}>
+                  {user.location && <span>📍 {user.location}</span>}
+                  {user.location && user.occupation && <span> | </span>}
+                  {user.occupation && <span>💼 {user.occupation}</span>}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -130,14 +287,12 @@ const Profile = () => {
           >
             Posts
           </div>
-
           <div 
             className={`tab ${activeTab === "Likes" ? "active" : ""}`} 
             onClick={() => setActiveTab("Likes")}
           >
             Likes
           </div>
-
           <div 
             className={`tab ${activeTab === "Respuestas" ? "active" : ""}`} 
             onClick={() => setActiveTab("Respuestas")}
@@ -147,43 +302,32 @@ const Profile = () => {
         </div>
       </div>
 
-
       <div className="posts-grid">
-        {activeTab === "Posts" &&
-          posts.map((post, index) => (
-            <ProfilePost
-              key={index}
-              title={post.title}
-              excerpt={post.excerpt}
-              likes={post.likes}
-              comments={post.comments}
-            />
-          ))
-        }
+        {activeTab === "Posts" && (
+          posts.length > 0 ? (
+            posts.map((post, index) => (
+              <ProfilePost
+                key={index}
+                title={post.title}
+                content={post.content}
+                img={post.img}
+                likes={post.likes}
+                comments={post.comments}
+              />
+            ))
+          ) : (
+            <p>No tienes posts aún. ¡Crea tu primer post!</p>
+          )
+        )}
 
-        {activeTab === "Likes" &&
-          likesData.map((like, index) => (
-            <PostLike
-              key={index}
-              title={like.title}
-              user={like.user}
-              date={like.date}
-            />
-          ))
-        }
+        {activeTab === "Likes" && (
+          <p>Próximamente: posts que te gustaron</p>
+        )}
 
-        {activeTab === "Respuestas" &&
-          responsesData.map((response, index) => (
-            <PostResponse
-              key={index}
-              title={response.title}
-              user={response.user}
-              comment={response.comment}
-            />
-          ))
-        }
+        {activeTab === "Respuestas" && (
+          <p>Próximamente: tus respuestas</p>
+        )}
       </div>
-
     </div>
   );
 };

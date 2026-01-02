@@ -3,6 +3,8 @@ package com.foro.backend.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 public class Post {
@@ -17,6 +19,11 @@ public class Post {
     private int comments;
     private String img;
 
+    // Relación con el usuario autor
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Post() {}
 
     public Post(String title, String content, int likes, int comments, String img) {
@@ -24,7 +31,7 @@ public class Post {
         this.content = content;
         this.likes = likes;
         this.comments = comments;
-        this.img=img;
+        this.img = img;
     }
 
     // Getters y Setters
@@ -39,4 +46,6 @@ public class Post {
     public void setComments(int comments) { this.comments = comments; }
     public String getImg() { return img; }
     public void setImg(String img) { this.img = img; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

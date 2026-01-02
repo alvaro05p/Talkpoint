@@ -9,6 +9,11 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     
-    // Obtener posts ordenados por id descendente (más recientes primero)
     List<Post> findAllByOrderByIdDesc();
+    
+    // Posts de un usuario específico
+    List<Post> findByUserIdOrderByIdDesc(Long userId);
+    
+    // Contar posts de un usuario
+    int countByUserId(Long userId);
 }
