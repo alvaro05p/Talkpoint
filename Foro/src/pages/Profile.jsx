@@ -1,24 +1,66 @@
 // src/pages/Profile.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-const ProfilePost = ({ title, content, img, likes, comments }) => {
+const ProfilePost = ({ id, title, content, img, likes, comments }) => {
   return (
-    <div className="post-card">
-      <div className="post-image">
-        {img ? (
-          <img src={img} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        ) : (
-          <div className="cloud"></div>
-        )}
+    <Link to={`/?post=${id}`} className="post-card-link">
+      <div className="post-card">
+        <div className="post-image">
+          {img ? (
+            <img src={img} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <div className="cloud"></div>
+          )}
+        </div>
+        <h3 className="post-title">{title}</h3>
+        <p className="post-excerpt">{content}</p>
+        <div className="post-stats">
+          <span className="post-stat">👍 {likes}</span>
+          <span className="post-stat">💬 {comments}</span>
+        </div>
       </div>
-      <h3 className="post-title">{title}</h3>
-      <p className="post-excerpt">{content}</p>
-      <div className="post-stats">
-        <span className="post-stat">👍 {likes}</span>
-        <span className="post-stat">💬 {comments}</span>
+    </Link>
+  );
+};
+
+const LikedPost = ({ post }) => {
+  return (
+    <Link to={`/?post=${post.id}`} className="post-card-link">
+      <div className="post-card">
+        <div className="post-image">
+          {post.img ? (
+            <img src={post.img} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <div className="cloud"></div>
+          )}
+        </div>
+        <h3 className="post-title">{post.title}</h3>
+        <p className="post-excerpt">{post.content}</p>
+        <div className="post-stats">
+          <span className="post-stat">❤️ {post.likes}</span>
+          {post.author && (
+            <span className="post-stat">por @{post.author.username}</span>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
+  );
+};
+
+const ResponseCard = ({ comment }) => {
+  return (
+    <Link to={`/?post=${comment.postId}`} className="post-card-link">
+      <div className="post-card response-card">
+        <div className="response-header">
+          <span className="response-post-title">En: {comment.postTitle}</span>
+        </div>
+        <p className="post-excerpt">"{comment.content}"</p>
+        <div className="post-stats">
+          <span className="post-stat">💬 {new Date(comment.createdAt).toLocaleDateString('es-ES')}</span>
+        </div>
+      </div>
+    </Link>
   );
 };
 
@@ -27,6 +69,8 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("Posts");
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -51,16 +95,24 @@ const Profile = () => {
         occupation: userData.occupation || ""
       });
       
+      // Cargar posts del usuario
       fetch(`http://localhost:8080/api/posts/user/${userData.id}`)
         .then(res => res.json())
-        .then(data => {
-          setPosts(data);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error("Error cargando posts:", err);
-          setLoading(false);
-        });
+        .then(data => setPosts(data))
+        .catch(err => console.error("Error cargando posts:", err));
+
+      // Cargar posts que le gustaron
+      fetch(`http://localhost:8080/api/users/${userData.id}/liked-posts`)
+        .then(res => res.json())
+        .then(data => setLikedPosts(data))
+        .catch(err => console.error("Error cargando likes:", err));
+
+      // Cargar respuestas/comentarios del usuario
+      fetch(`http://localhost:8080/api/users/${userData.id}/comments`)
+        .then(res => res.json())
+        .then(data => setResponses(data))
+        .catch(err => console.error("Error cargando respuestas:", err))
+        .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
@@ -94,6 +146,11 @@ const Profile = () => {
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
   };
 
   const handleAvatarChange = async (e) => {
@@ -199,7 +256,7 @@ const Profile = () => {
 
             <div className="profile-stats">
               <div className="stat-item">
-                <div className="stat-number">{user.postCount || posts.length}</div>
+                <div className="stat-number">{posts.length}</div>
                 <div className="stat-label">Posts</div>
               </div>
               <div className="stat-item">
@@ -228,6 +285,9 @@ const Profile = () => {
                     Editar perfil
                   </button>
                   <button className="btn btn-secondary">Compartir</button>
+                  <button className="btn btn-danger" onClick={handleLogout}>
+                    Cerrar sesión
+                  </button>
                 </>
               )}
             </div>
@@ -285,19 +345,19 @@ const Profile = () => {
             className={`tab ${activeTab === "Posts" ? "active" : ""}`} 
             onClick={() => setActiveTab("Posts")}
           >
-            Posts
+            Posts ({posts.length})
           </div>
           <div 
             className={`tab ${activeTab === "Likes" ? "active" : ""}`} 
             onClick={() => setActiveTab("Likes")}
           >
-            Likes
+            Likes ({likedPosts.length})
           </div>
           <div 
             className={`tab ${activeTab === "Respuestas" ? "active" : ""}`} 
             onClick={() => setActiveTab("Respuestas")}
           >
-            Respuestas
+            Respuestas ({responses.length})
           </div>
         </div>
       </div>
@@ -305,9 +365,10 @@ const Profile = () => {
       <div className="posts-grid">
         {activeTab === "Posts" && (
           posts.length > 0 ? (
-            posts.map((post, index) => (
+            posts.map((post) => (
               <ProfilePost
-                key={index}
+                key={post.id}
+                id={post.id}
                 title={post.title}
                 content={post.content}
                 img={post.img}
@@ -316,16 +377,28 @@ const Profile = () => {
               />
             ))
           ) : (
-            <p>No tienes posts aún. ¡Crea tu primer post!</p>
+            <p className="empty-message">No tienes posts aún. ¡Crea tu primer post!</p>
           )
         )}
 
         {activeTab === "Likes" && (
-          <p>Próximamente: posts que te gustaron</p>
+          likedPosts.length > 0 ? (
+            likedPosts.map((post) => (
+              <LikedPost key={post.id} post={post} />
+            ))
+          ) : (
+            <p className="empty-message">No has dado like a ningún post aún.</p>
+          )
         )}
 
         {activeTab === "Respuestas" && (
-          <p>Próximamente: tus respuestas</p>
+          responses.length > 0 ? (
+            responses.map((comment) => (
+              <ResponseCard key={comment.id} comment={comment} />
+            ))
+          ) : (
+            <p className="empty-message">No has comentado en ningún post aún.</p>
+          )
         )}
       </div>
     </div>

@@ -1,8 +1,9 @@
 package com.foro.backend.controller;
 
 import com.foro.backend.model.Post;
-import com.foro.backend.model.User;
+import com.foro.backend.model.PostLike;
 import com.foro.backend.repository.PostRepository;
+import com.foro.backend.repository.PostLikeRepository;
 import com.foro.backend.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,29 +26,59 @@ import java.util.stream.Collectors;
 public class PostController {
 
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
     
     private final String UPLOAD_DIR = "uploads/";
 
-    public PostController(PostRepository postRepository, UserRepository userRepository) {
+    public PostController(PostRepository postRepository, PostLikeRepository postLikeRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.postLikeRepository = postLikeRepository;
         this.userRepository = userRepository;
     }
 
     // GET - Obtener todos los posts
     @GetMapping
-    public List<Map<String, Object>> getAllPosts() {
+    public List<Map<String, Object>> getAllPosts(@RequestParam(required = false) Long userId) {
         return postRepository.findAllByOrderByIdDesc().stream()
-            .map(this::buildPostResponse)
+            .map(post -> buildPostResponse(post, userId))
             .collect(Collectors.toList());
     }
 
     // GET - Obtener posts de un usuario
-    @GetMapping("/user/{userId}")
-    public List<Map<String, Object>> getPostsByUser(@PathVariable Long userId) {
-        return postRepository.findByUserIdOrderByIdDesc(userId).stream()
-            .map(this::buildPostResponse)
+    @GetMapping("/user/{authorId}")
+    public List<Map<String, Object>> getPostsByUser(@PathVariable Long authorId, @RequestParam(required = false) Long userId) {
+        return postRepository.findByUserIdOrderByIdDesc(authorId).stream()
+            .map(post -> buildPostResponse(post, userId))
             .collect(Collectors.toList());
+    }
+
+    // POST - Dar/quitar like (toggle)
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> toggleLike(@PathVariable Long postId, @RequestParam Long userId) {
+        var postOpt = postRepository.findById(postId);
+        
+        if (postOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Post post = postOpt.get();
+        boolean alreadyLiked = postLikeRepository.existsByUserIdAndPostId(userId, postId);
+        
+        if (alreadyLiked) {
+            // Quitar like
+            var likeOpt = postLikeRepository.findByUserIdAndPostId(userId, postId);
+            likeOpt.ifPresent(postLikeRepository::delete);
+            post.setLikes(Math.max(0, post.getLikes() - 1));
+        } else {
+            // Dar like
+            postLikeRepository.save(new PostLike(userId, postId));
+            post.setLikes(post.getLikes() + 1);
+        }
+        
+        Post savedPost = postRepository.save(post);
+        
+        return ResponseEntity.ok(buildPostResponse(savedPost, userId));
     }
 
     // POST - Crear nuevo post
@@ -92,11 +123,11 @@ public class PostController {
         
         Post savedPost = postRepository.save(newPost);
         
-        return ResponseEntity.ok(buildPostResponse(savedPost));
+        return ResponseEntity.ok(buildPostResponse(savedPost, userId));
     }
 
-    // Construir respuesta de post con info del autor
-    private Map<String, Object> buildPostResponse(Post post) {
+    // Construir respuesta de post
+    private Map<String, Object> buildPostResponse(Post post, Long currentUserId) {
         Map<String, Object> response = new HashMap<>();
         response.put("id", post.getId());
         response.put("title", post.getTitle());
@@ -105,7 +136,14 @@ public class PostController {
         response.put("comments", post.getComments());
         response.put("img", post.getImg());
         
-        // Incluir info del autor si existe
+        // Verificar si el usuario actual dio like
+        boolean likedByUser = false;
+        if (currentUserId != null) {
+            likedByUser = postLikeRepository.existsByUserIdAndPostId(currentUserId, post.getId());
+        }
+        response.put("likedByUser", likedByUser);
+        
+        // Info del autor
         if (post.getUser() != null) {
             Map<String, Object> author = new HashMap<>();
             author.put("id", post.getUser().getId());

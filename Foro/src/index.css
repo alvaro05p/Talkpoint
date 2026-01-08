@@ -1097,3 +1097,625 @@ input:focus-visible {
   background: var(--color-accent);
   color: white;
 }
+
+/* Añadir esto a tu CSS existente */
+
+/* Botón cerrar sesión */
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* Avatar editable */
+.profile-avatar {
+  position: relative;
+  cursor: pointer;
+}
+
+.avatar-overlay {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.profile-avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+
+/* Campos de edición */
+.edit-input {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 16px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.edit-textarea {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 14px;
+  width: 100%;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.edit-textarea:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.edit-bio-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-row {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-row .edit-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.create-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Añadir a tu CSS */
+
+/* Botón de like */
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 20px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.action-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.action-button:active {
+  transform: scale(0.95);
+}
+
+.action-button.liked {
+  color: #e91e63;
+}
+
+.action-button.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.action-icon {
+  font-size: 18px;
+}
+
+/* Botón crear disabled */
+.create-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-button.disabled:hover {
+  background: transparent;
+}
+
+/* Añadir a tu CSS existente */
+
+/* Sección de comentarios */
+.comments-section {
+  border-top: 1px solid #333;
+  padding-top: 16px;
+  margin-top: 12px;
+}
+
+/* Formulario de comentario */
+.comment-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.comment-form input {
+  flex: 1;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.comment-form input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.comment-form input::placeholder {
+  color: #888;
+}
+
+.comment-form button {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.comment-form button:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.comment-form button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* Lista de comentarios */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  align-items: flex-start;
+}
+
+.comment-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.comment-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.comment-content {
+  font-size: 14px;
+  color: #ddd;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.comment-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  padding: 4px;
+}
+
+.comment-delete:hover {
+  opacity: 1;
+}
+
+.loading-text,
+.no-comments {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  padding: 20px;
+}
+
+/* Comentarios y respuestas */
+
+.comments-section {
+  border-top: 1px solid #333;
+  padding-top: 16px;
+  margin-top: 12px;
+}
+
+/* Formulario de comentario */
+.comment-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.comment-form input {
+  flex: 1;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.comment-form input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.comment-form input::placeholder {
+  color: #888;
+}
+
+.comment-form button {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.comment-form button:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.comment-form button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* Lista de comentarios */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Comentario individual */
+.comment {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #1a1a1a;
+  border-radius: 12px;
+}
+
+.comment-reply {
+  background: #222;
+  margin-left: 0;
+  margin-top: 8px;
+}
+
+.comment-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.comment-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.comment-content {
+  font-size: 14px;
+  color: #ddd;
+  margin: 0 0 8px 0;
+  word-wrap: break-word;
+}
+
+/* Acciones del comentario */
+.comment-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.reply-btn,
+.delete-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.reply-btn:hover {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+}
+
+.delete-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Formulario de respuesta */
+.reply-form {
+  margin-top: 12px;
+  padding: 12px;
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+.reply-form input {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.reply-form input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.reply-form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.reply-form-buttons button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reply-form-buttons button:first-child {
+  background: transparent;
+  border: 1px solid #444;
+  color: #888;
+}
+
+.reply-form-buttons button:first-child:hover {
+  border-color: #666;
+  color: #fff;
+}
+
+.reply-form-buttons .submit-reply {
+  background: #7c3aed;
+  border: none;
+  color: white;
+}
+
+.reply-form-buttons .submit-reply:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.reply-form-buttons .submit-reply:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* Lista de respuestas */
+.replies-list {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid #333;
+}
+
+.loading-text,
+.no-comments {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  padding: 20px;
+}
+
+/* Añadir a tu CSS existente */
+
+/* Mensaje vacío */
+.empty-message {
+  text-align: center;
+  color: #888;
+  padding: 40px 20px;
+  font-size: 15px;
+  grid-column: 1 / -1;
+}
+
+/* Card de respuesta */
+.response-card {
+  background: #1a1a1a;
+}
+
+.response-header {
+  margin-bottom: 8px;
+}
+
+.response-post-title {
+  font-size: 12px;
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+/* Ajuste para tabs con contador */
+.tab {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.tab:hover {
+  color: #ffffff;
+}
+
+.tab.active {
+  border-bottom-color: #ffffff;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Añadir a tu CSS existente */
+
+/* Link en post card */
+.post-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.post-card-link:hover .post-card {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.2);
+}
+
+.post-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Highlight del post al navegar */
+.highlight-post {
+  animation: highlightPulse 2s ease-out;
+}
+
+@keyframes highlightPulse {
+  0% {
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+  }
+}
+
+/* Mensaje vacío */
+.empty-message {
+  text-align: center;
+  color: #888;
+  padding: 40px 20px;
+  font-size: 15px;
+  grid-column: 1 / -1;
+}
+
+/* Card de respuesta */
+.response-card {
+  background: #1a1a1a;
+}
+
+.response-header {
+  margin-bottom: 8px;
+}
+
+.response-post-title {
+  font-size: 12px;
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+/* Ajuste para tabs con contador */
+.tab {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.tab:hover {
+  color: #7c3aed;
+}
+
+.tab.active {
+  border-bottom-color: #7c3aed;
+  color: #7c3aed;
+  font-weight: 500;
+}
+

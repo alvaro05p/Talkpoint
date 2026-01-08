@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./CreatePostModal.css";
 
-const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
+const CreatePostModal = ({ isOpen, onClose, onPostCreated, userId }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -40,6 +40,11 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
       
       if (imageFile) {
         formData.append("image", imageFile);
+      }
+      
+      // Enviar userId para asociar el post al usuario
+      if (userId) {
+        formData.append("userId", userId);
       }
 
       const res = await fetch("http://localhost:8080/api/posts", {
@@ -100,7 +105,6 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
 
         {/* Formulario */}
         <form onSubmit={handleSubmit}>
-          {/* Mensaje de error */}
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
@@ -122,7 +126,6 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
             />
           </div>
 
-          {/* Preview de imagen */}
           {imagePreview && (
             <div className="image-preview">
               <img src={imagePreview} alt="Preview" />
@@ -145,7 +148,6 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
             </div>
           )}
 
-          {/* Acciones del formulario */}
           <div className="modal-actions">
             <label className="image-upload-btn">
               <svg
