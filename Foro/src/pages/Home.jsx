@@ -127,6 +127,10 @@ const Home = () => {
             <>
               <li className="menu-user">Hola, {user.displayName || user.username}</li>
               <li><Link to="/perfil" style={{color: 'inherit', textDecoration: 'none'}}>Perfil</Link></li>
+              <li><Link to="/articulos" style={{color: 'inherit', textDecoration: 'none'}}>Artículos</Link></li>
+              {user.role === "ADMIN" && (
+                <li><Link to="/admin/articulos" style={{color: 'inherit', textDecoration: 'none'}}>Crear Artículo</Link></li>
+              )}
               <li>Mensajes</li>
               <li>Ajustes</li>
               <li onClick={handleLogout}>Cerrar sesión</li>
@@ -136,6 +140,7 @@ const Home = () => {
               <li onClick={() => { setAuthModalOpen(true); setMenuOpen(false); }}>
                 Iniciar sesión
               </li>
+              <li><Link to="/articulos" style={{color: 'inherit', textDecoration: 'none'}}>Artículos</Link></li>
               <li>Ajustes</li>
             </>
           )}
@@ -210,26 +215,39 @@ const Home = () => {
         )}
       </div>
 
+      {/* Banner de anuncio superior */}
+      <div className="ad-container ad-banner">
+        <span className="ad-label">Publicidad</span>
+        {/* Aquí irá el código de AdSense */}
+        <div className="ad-placeholder">Espacio para anuncio</div>
+      </div>
+
       {/* Contenedor de posts */}
       <div className="container">
-        {posts.map((post) => (
-          <div 
-            key={post.id} 
-            ref={el => postRefs.current[post.id] = el}
-          >
-            <Post
-              id={post.id}
-              title={post.title}
-              content={post.content}
-              image={post.img}
-              likes={post.likes}
-              comments={post.comments}
-              likedByUser={post.likedByUser}
-              userId={user?.id}
-              onLikeUpdate={handleLikeUpdate}
-              onCommentUpdate={handleCommentUpdate}
-            />
-          </div>
+        {posts.map((post, index) => (
+          <React.Fragment key={post.id}>
+            <div ref={el => postRefs.current[post.id] = el}>
+              <Post
+                id={post.id}
+                title={post.title}
+                content={post.content}
+                image={post.img}
+                likes={post.likes}
+                comments={post.comments}
+                likedByUser={post.likedByUser}
+                userId={user?.id}
+                onLikeUpdate={handleLikeUpdate}
+                onCommentUpdate={handleCommentUpdate}
+              />
+            </div>
+            {/* Anuncio cada 3 posts */}
+            {(index + 1) % 3 === 0 && (
+              <div className="ad-container ad-inline">
+                <span className="ad-label">Publicidad</span>
+                <div className="ad-placeholder">Espacio para anuncio</div>
+              </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
     </>

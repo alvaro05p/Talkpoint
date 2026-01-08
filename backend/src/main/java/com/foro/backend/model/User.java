@@ -34,6 +34,9 @@ public class User {
     private int followers = 0;
     private int following = 0;
 
+    // Rol del usuario (USER, ADMIN)
+    private String role = "USER";
+
     public User() {}
 
     public User(String username, String email, String password) {
@@ -75,4 +78,7 @@ public class User {
     
     public int getFollowing() { return following; }
     public void setFollowing(int following) { this.following = following; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }

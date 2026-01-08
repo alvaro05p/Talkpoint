@@ -173,6 +173,7 @@ public class AuthController {
         response.put("followers", user.getFollowers());
         response.put("following", user.getFollowing());
         response.put("postCount", postCount);
+        response.put("role", user.getRole());
         return response;
     }
 }
