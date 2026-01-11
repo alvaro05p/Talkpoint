@@ -1714,8 +1714,12 @@ input:focus-visible {
 }
 
 .tab.active {
-  border-bottom-color: #7c3aed;
-  color: #7c3aed;
+  border-bottom-color: #ffffff;
+  color: #ffffff;
   font-weight: 500;
+}
+
+#root > div > button{
+  width: 100px;
 }
 

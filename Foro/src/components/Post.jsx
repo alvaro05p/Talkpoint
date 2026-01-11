@@ -26,7 +26,7 @@ const Post = ({ id, title, content, image, likes, comments, likedByUser, userId,
     setIsLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:8080/api/posts/${id}/like?userId=${userId}`, {
+      const res = await fetch(`https://talkpoint-api.onrender.com/${id}/like?userId=${userId}`, {
         method: "POST",
       });
       if (res.ok) {
@@ -46,7 +46,7 @@ const Post = ({ id, title, content, image, likes, comments, likedByUser, userId,
     if (!showComments) {
       setLoadingComments(true);
       try {
-        const res = await fetch(`http://localhost:8080/api/posts/${id}/comments`);
+        const res = await fetch(`https://talkpoint-api.onrender.com/${id}/comments`);
         if (res.ok) {
           const data = await res.json();
           setCommentsList(data);
@@ -70,7 +70,7 @@ const Post = ({ id, title, content, image, likes, comments, likedByUser, userId,
     
     setSubmittingComment(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/posts/${id}/comments`, {
+      const res = await fetch(`https://talkpoint-api.onrender.com/${id}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, content: newComment.trim() })
@@ -98,7 +98,7 @@ const Post = ({ id, title, content, image, likes, comments, likedByUser, userId,
     if (!replyContent.trim()) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/api/posts/${id}/comments`, {
+      const res = await fetch(`https://talkpoint-api.onrender.com/${id}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, content: replyContent.trim(), parentId })
@@ -129,7 +129,7 @@ const Post = ({ id, title, content, image, likes, comments, likedByUser, userId,
     if (!window.confirm("¿Eliminar este comentario?")) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/api/posts/${id}/comments/${commentId}?userId=${userId}`, {
+      const res = await fetch(`https://talkpoint-api.onrender.com/${id}/comments/${commentId}?userId=${userId}`, {
         method: "DELETE"
       });
       if (res.ok) {
