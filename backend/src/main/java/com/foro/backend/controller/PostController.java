@@ -105,7 +105,7 @@ public class PostController {
                 Path filePath = uploadPath.resolve(newFilename);
                 Files.copy(image.getInputStream(), filePath);
                 
-                imagePath = "talkpoint-api.onrender.com/uploads/" + newFilename;
+                imagePath = "https://talkpoint-api.onrender.com/uploads/" + newFilename;
                 
             } catch (IOException e) {
                 return ResponseEntity.internalServerError().build();

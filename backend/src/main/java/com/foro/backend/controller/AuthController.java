@@ -147,7 +147,7 @@ public class AuthController {
             Path filePath = uploadPath.resolve(newFilename);
             Files.copy(avatar.getInputStream(), filePath);
 
-            String avatarUrl = "talkpoint-api.onrender.com/uploads/" + newFilename;
+            String avatarUrl = "https://talkpoint-api.onrender.com/uploads/" + newFilename;
             user.setAvatar(avatarUrl);
             User savedUser = userRepository.save(user);
 
