@@ -20,7 +20,7 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
       : { username, email, password };
 
     try {
-      const res = await fetch(`talkpoint-api.onrender.com/api/auth/${endpoint}`, {
+      const res = await fetch(`https://talkpoint-api.onrender.com/api/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
