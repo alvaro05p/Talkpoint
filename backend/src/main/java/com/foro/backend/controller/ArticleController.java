@@ -93,7 +93,7 @@ public class ArticleController {
                 Path filePath = uploadPath.resolve(newFilename);
                 Files.copy(coverImage.getInputStream(), filePath);
 
-                imagePath = "http://localhost:8080/uploads/" + newFilename;
+                imagePath = "talkpoint-api.onrender.com/uploads/" + newFilename;
             } catch (IOException e) {
                 return ResponseEntity.internalServerError().body(Map.of("error", "Error al subir imagen"));
             }

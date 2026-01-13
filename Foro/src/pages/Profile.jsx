@@ -102,13 +102,13 @@ const Profile = () => {
         .catch(err => console.error("Error cargando posts:", err));
 
       // Cargar posts que le gustaron
-      fetch(`http://localhost:8080/api/users/${userData.id}/liked-posts`)
+      fetch(`talkpoint-api.onrender.com/api/users/${userData.id}/liked-posts`)
         .then(res => res.json())
         .then(data => setLikedPosts(data))
         .catch(err => console.error("Error cargando likes:", err));
 
       // Cargar respuestas/comentarios del usuario
-      fetch(`http://localhost:8080/api/users/${userData.id}/comments`)
+      fetch(`talkpoint-api.onrender.com/api/users/${userData.id}/comments`)
         .then(res => res.json())
         .then(data => setResponses(data))
         .catch(err => console.error("Error cargando respuestas:", err))
@@ -127,7 +127,7 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/api/auth/user/${user.id}`, {
+      const res = await fetch(`talkpoint-api.onrender.com/api/auth/user/${user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm)
@@ -163,7 +163,7 @@ const Profile = () => {
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const res = await fetch(`http://localhost:8080/api/auth/user/${user.id}/avatar`, {
+      const res = await fetch(`talkpoint-api.onrender.com/api/auth/user/${user.id}/avatar`, {
         method: "POST",
         body: formData
       });

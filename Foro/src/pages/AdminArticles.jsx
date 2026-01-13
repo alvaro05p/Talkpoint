@@ -35,7 +35,7 @@ const AdminArticles = () => {
     }
 
     // Cargar categorías
-    fetch("http://localhost:8080/api/articles/categories")
+    fetch("talkpoint-api.onrender.com/api/articles/categories")
       .then(res => res.json())
       .then(data => {
         setCategories(data);
@@ -80,7 +80,7 @@ const AdminArticles = () => {
         formData.append("coverImage", coverImage);
       }
 
-      const res = await fetch("http://localhost:8080/api/articles", {
+      const res = await fetch("talkpoint-api.onrender.com/api/articles", {
         method: "POST",
         body: formData,
       });
