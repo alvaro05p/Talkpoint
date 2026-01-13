@@ -29,8 +29,8 @@ const Home = () => {
     const userId = savedUser ? JSON.parse(savedUser).id : null;
     
     const url = userId 
-      ? `https://talkpoint-api.onrender.com/?userId=${userId}`
-      : "https://talkpoint-api.onrender.com";
+      ? `https://talkpoint-api.onrender.com/api/posts?userId=${userId}`
+      : "https://talkpoint-api.onrender.com/api/posts";
     
     fetch(url)
       .then((res) => res.json())
