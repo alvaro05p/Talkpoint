@@ -10,7 +10,7 @@ const ArticleDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`talkpoint-api.onrender.com/api/articles/${id}`)
+    fetch(`https://talkpoint-api.onrender.com/api/articles/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Artículo no encontrado");
         return res.json();

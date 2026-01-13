@@ -50,7 +50,7 @@ const Articles = () => {
     }
 
     // Cargar categorías
-    fetch("talkpoint-api.onrender.com/api/articles/categories")
+    fetch("https://talkpoint-api.onrender.com/api/articles/categories")
       .then(res => res.json())
       .then(data => setCategories(["Todas", ...data]))
       .catch(err => console.error(err));
@@ -62,8 +62,8 @@ const Articles = () => {
   const loadArticles = (category = null) => {
     setLoading(true);
     const url = category && category !== "Todas"
-      ? `talkpoint-api.onrender.com/api/articles/category/${encodeURIComponent(category)}`
-      : "talkpoint-api.onrender.com/api/articles";
+      ? `https://talkpoint-api.onrender.com/api/articles/category/${encodeURIComponent(category)}`
+      : "https://talkpoint-api.onrender.com/api/articles";
 
     fetch(url)
       .then(res => res.json())
