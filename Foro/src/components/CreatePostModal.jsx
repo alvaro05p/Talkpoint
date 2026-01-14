@@ -47,7 +47,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, userId }) => {
         formData.append("userId", userId);
       }
 
-      const res = await fetch("https://talkpoint-api.onrender.com", {
+      const res = await fetch("https://talkpoint-api.onrender.com/api/posts", {
         method: "POST",
         body: formData,
       });
