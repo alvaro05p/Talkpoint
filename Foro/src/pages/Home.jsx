@@ -24,6 +24,7 @@ const Home = () => {
   }, []);
 
   // Cargar posts
+  // Dentro de Home.jsx, cambia el useEffect de carga de posts por este:
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     const userId = savedUser ? JSON.parse(savedUser).id : null;
@@ -33,27 +34,18 @@ const Home = () => {
       : "https://talkpoint-api.onrender.com/api/posts";
     
     fetch(url)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Error en la red");
+        return res.json();
+      })
       .then((data) => {
-        setPosts(data);
-        
-        // Scroll al post si viene en la URL
-        const postId = searchParams.get("post");
-        if (postId) {
-          setTimeout(() => {
-            const element = postRefs.current[postId];
-            if (element) {
-              element.scrollIntoView({ behavior: "smooth", block: "center" });
-              element.classList.add("highlight-post");
-              setTimeout(() => element.classList.remove("highlight-post"), 2000);
-            }
-            // Limpiar el parámetro de la URL
-            navigate("/", { replace: true });
-          }, 100);
+        console.log("Datos recibidos:", data); // Esto te confirmará en consola que el texto llegó
+        if (Array.isArray(data)) {
+          setPosts(data);
         }
       })
       .catch((err) => console.error("Error al cargar posts:", err));
-  }, [user, searchParams]);
+  }, []); // Quita 'user' y 'searchParams' de aquí para la primera carga estable
 
   const handlePostCreated = (newPost) => {
     setPosts([newPost, ...posts]);
