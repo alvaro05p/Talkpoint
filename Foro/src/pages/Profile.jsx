@@ -96,7 +96,7 @@ const Profile = () => {
       });
       
       // Cargar posts del usuario
-      fetch(`https://talkpoint-api.onrender.com/posts/user/${userData.id}`)
+      fetch(`https://talkpoint-api.onrender.com/api/posts/user/${userData.id}`)
         .then(res => res.json())
         .then(data => setPosts(data))
         .catch(err => console.error("Error cargando posts:", err));
