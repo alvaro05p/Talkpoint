@@ -38,10 +38,9 @@ const Post = ({
 
     setIsLoading(true);
     try {
-      const res = await fetch(
-        `${API_URL}/${id}/like?userId=${userId}`,
-        { method: "POST" }
-      );
+      const res = await fetch(`${API_URL}/${id}/like?userId=${userId}`, {
+        method: "POST",
+      });
 
       if (res.ok) {
         const updatedPost = await res.json();
@@ -71,7 +70,7 @@ const Post = ({
         setLoadingComments(false);
       }
     }
-    setShowComments(prev => !prev);
+    setShowComments((prev) => !prev);
   };
 
   const handleSubmitComment = async (e) => {
@@ -85,15 +84,15 @@ const Post = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
-          content: newComment.trim()
-        })
+          content: newComment.trim(),
+        }),
       });
 
       if (res.ok) {
         const comment = await res.json();
         comment.replies = [];
-        setCommentsList(prev => [comment, ...prev]);
-        setCurrentComments(prev => prev + 1);
+        setCommentsList((prev) => [comment, ...prev]);
+        setCurrentComments((prev) => prev + 1);
         setNewComment("");
         onCommentUpdate?.(id, currentComments + 1);
       }
@@ -114,20 +113,20 @@ const Post = ({
         body: JSON.stringify({
           userId,
           content: replyContent.trim(),
-          parentId
-        })
+          parentId,
+        }),
       });
 
       if (res.ok) {
         const reply = await res.json();
-        setCommentsList(prev =>
-          prev.map(comment =>
+        setCommentsList((prev) =>
+          prev.map((comment) =>
             comment.id === parentId
               ? { ...comment, replies: [...(comment.replies || []), reply] }
               : comment
           )
         );
-        setCurrentComments(prev => prev + 1);
+        setCurrentComments((prev) => prev + 1);
         setReplyingTo(null);
         setReplyContent("");
         onCommentUpdate?.(id, currentComments + 1);
@@ -137,7 +136,7 @@ const Post = ({
     }
   };
 
-  const handleDeleteComment = async (commentId) => {
+  const handleDeleteComment = async (commentId, isReply = false, parentId = null) => {
     if (!window.confirm("¿Eliminar este comentario?")) return;
 
     try {
@@ -147,8 +146,18 @@ const Post = ({
       );
 
       if (res.ok) {
-        setCommentsList(prev => prev.filter(c => c.id !== commentId));
-        setCurrentComments(prev => Math.max(0, prev - 1));
+        if (isReply && parentId) {
+          setCommentsList((prev) =>
+            prev.map((comment) =>
+              comment.id === parentId
+                ? { ...comment, replies: comment.replies.filter((r) => r.id !== commentId) }
+                : comment
+            )
+          );
+        } else {
+          setCommentsList((prev) => prev.filter((c) => c.id !== commentId));
+        }
+        setCurrentComments((prev) => Math.max(0, prev - 1));
         onCommentUpdate?.(id, Math.max(0, currentComments - 1));
       }
     } catch (err) {
@@ -156,9 +165,151 @@ const Post = ({
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const CommentItem = ({ comment, isReply = false, parentId = null }) => (
+    <div className={`comment ${isReply ? "comment-reply" : ""}`}>
+      <div className="comment-avatar">
+        <img
+          src={comment.author?.avatar || "/images/fotoPerfilEjemplo.jpg"}
+          alt={comment.author?.username}
+        />
+      </div>
+      <div className="comment-body">
+        <div className="comment-header">
+          <span className="comment-author">
+            {comment.author?.displayName || comment.author?.username}
+          </span>
+          <span className="comment-date">{formatDate(comment.createdAt)}</span>
+        </div>
+        <p className="comment-content">{comment.content}</p>
+
+        <div className="comment-actions">
+          {userId && !isReply && (
+            <button
+              className="reply-btn"
+              onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+            >
+              💬 Responder
+            </button>
+          )}
+          {userId === comment.author?.id && (
+            <button
+              className="delete-btn"
+              onClick={() => handleDeleteComment(comment.id, isReply, parentId)}
+            >
+              🗑️ Eliminar
+            </button>
+          )}
+        </div>
+
+        {replyingTo === comment.id && (
+          <div className="reply-form">
+            <input
+              type="text"
+              placeholder={`Responder a ${comment.author?.displayName || comment.author?.username}...`}
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+              autoFocus
+            />
+            <div className="reply-form-buttons">
+              <button onClick={() => { setReplyingTo(null); setReplyContent(""); }}>
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleSubmitReply(comment.id)}
+                disabled={!replyContent.trim()}
+                className="submit-reply"
+              >
+                Responder
+              </button>
+            </div>
+          </div>
+        )}
+
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="replies-list">
+            {comment.replies.map((reply) => (
+              <CommentItem
+                key={reply.id}
+                comment={reply}
+                isReply={true}
+                parentId={comment.id}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="post">
-      {/* resto del JSX igual */}
+      <div className="post-header">
+        <h2 className="post-title">{title}</h2>
+        <div className="expand-icon">▼</div>
+      </div>
+
+      {image && (
+        <div className="post-image">
+          <img src={image} alt={title} />
+        </div>
+      )}
+
+      <div className="post-content">{content}</div>
+
+      <div className="post-actions">
+        <div
+          className={`action-button ${isLiked ? "liked" : ""} ${isLoading ? "loading" : ""}`}
+          onClick={handleLike}
+        >
+          <span className="action-icon">{isLiked ? "❤️" : "🤍"}</span>
+          <span>{currentLikes}</span>
+        </div>
+        <div className="action-button" onClick={toggleComments}>
+          <span className="action-icon">💬</span>
+          <span>{currentComments}</span>
+        </div>
+      </div>
+
+      {showComments && (
+        <div className="comments-section">
+          {userId && (
+            <form onSubmit={handleSubmitComment} className="comment-form">
+              <input
+                type="text"
+                placeholder="Escribe un comentario..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                disabled={submittingComment}
+              />
+              <button type="submit" disabled={submittingComment || !newComment.trim()}>
+                {submittingComment ? "..." : "Enviar"}
+              </button>
+            </form>
+          )}
+
+          <div className="comments-list">
+            {loadingComments ? (
+              <p className="loading-text">Cargando comentarios...</p>
+            ) : commentsList.length > 0 ? (
+              commentsList.map((comment) => (
+                <CommentItem key={comment.id} comment={comment} />
+              ))
+            ) : (
+              <p className="no-comments">No hay comentarios aún</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
