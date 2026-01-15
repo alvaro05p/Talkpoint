@@ -176,4 +176,17 @@ public class AuthController {
         response.put("role", user.getRole());
         return response;
     }
+    
+    // TEMPORAL - Hacer admin (BORRAR DESPUÉS)
+    @GetMapping("/make-admin/{username}")
+    public ResponseEntity<?> makeAdmin(@PathVariable String username) {
+        var userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Usuario no encontrado"));
+        }
+        User user = userOpt.get();
+        user.setRole("ADMIN");
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "Usuario " + username + " ahora es ADMIN"));
+    }
 }
